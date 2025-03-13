@@ -1,5 +1,4 @@
-import { randomUUID } from "node:crypto"
-import type { Slug } from "./value-objectss/slug"
+import type { Slug } from "./value-objects/slug"
 import { Entity } from "../../core/entities/entity"
 
 interface QuestionProps {
