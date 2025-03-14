@@ -1,6 +1,6 @@
 import {expect, test} from 'vitest'
 import { AnswerQuestionUseCase } from './answer-question'
-import type { AnswerRepository } from '../../repositories/answer-repository'
+import type { AnswerRepository } from '@/repositories/answer-repository'
 import type { Answer } from '../entities/answer'
 
 const testAnswersRepository: AnswerRepository = {
