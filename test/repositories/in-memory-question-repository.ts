@@ -29,9 +29,6 @@ export class InMemoryQuestionRepository implements QuestionRepository {
   async delete(question: Question) {
     const itemIndex = this.items.findIndex(item => item.id === question.id)
 
-    if (itemIndex === -1) {
-      throw new Error('question not found')
-    }
     this.items.splice(itemIndex, 1)
   }
 }
