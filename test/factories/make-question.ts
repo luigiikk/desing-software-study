@@ -1,4 +1,5 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { faker } from '@faker-js/faker'
 import {
   Question,
   type QuestionProps,
@@ -12,13 +13,13 @@ export function makeQuestion(
 ) {
   const question = Question.create(
     {
-      title: 'Example question',
+      title: faker.lorem.sentence(),
 
       slug: Slug.create('example-question'),
 
       authorId: new UniqueEntityID(),
 
-      content: 'Example quesiton content',
+      content: faker.lorem.text(),
 
       ...override,
     },
