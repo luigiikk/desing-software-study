@@ -12,14 +12,32 @@ describe('Delete Question Use Case', () => {
   })
 
   it('should be able to delete question', async () => {
-    const newQuestion = makeQuestion({}, new UniqueEntityID('question-1'))
+    const newQuestion = makeQuestion({
+      authorId: new UniqueEntityID('author-1'),
+    }, new UniqueEntityID('question-1'))
 
     await inMemoryQuestionRepository.create(newQuestion)
 
     await sut.execute({
+      authorId: 'author-1',
       questionId: 'question-1',
     })
 
     expect(inMemoryQuestionRepository.items.length).toBe(0)
+  })
+
+  it('should not be able to delete question fro manother user', async () => {
+    const newQuestion = makeQuestion({
+      authorId: new UniqueEntityID('author-1'),
+    }, new UniqueEntityID('question-1'))
+
+    await inMemoryQuestionRepository.create(newQuestion)
+
+    expect(() => {
+      return sut.execute({
+        authorId: 'author-2',
+        questionId: 'question-1',
+      })
+    }).rejects.toThrow('You are not allower to delete this question')
   })
 })
