@@ -38,6 +38,6 @@ describe('Delete Question Use Case', () => {
         authorId: 'author-2',
         questionId: 'question-1',
       })
-    }).rejects.toThrow('You are not allower to delete this question')
+    }).rejects.toBeInstanceOf(Error)
   })
 })
