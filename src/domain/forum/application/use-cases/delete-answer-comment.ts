@@ -1,14 +1,18 @@
-import { AnswerComment } from '../../enterprise/entities/answer-comment'
+import { left, right, type Either } from '@/core/either'
 import type { AnswerCommentsRepository } from '../repositories/answer-comments-repository'
-import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 interface DeleteAnswerCommentUseCaseRequest {
   authorId: string
   answerCommentId: string
 }
 
-// biome-ignore lint/suspicious/noEmptyInterface: <explanation>
-interface DeleteAnswerCommentUseCaseResponse {}
+type DeleteAnswerCommentUseCaseResponse = Either<
+  ResourceNotFoundError | NotAllowedError,
+  // biome-ignore lint/complexity/noBannedTypes: <explanation>
+  {}
+>
 
 export class DeleteAnswerCommentUseCase {
   constructor(private answerCommentsRepository: AnswerCommentsRepository) {}
@@ -20,14 +24,14 @@ export class DeleteAnswerCommentUseCase {
       await this.answerCommentsRepository.findById(answerCommentId)
 
     if (!answerComment) {
-      throw new Error('Answer not found')
+      return left(new ResourceNotFoundError())
     }
     if (answerComment.authorId.toString() !== authorId) {
-      throw new Error('no allow to delete this comment')
+      return left(new NotAllowedError())
     }
 
     await this.answerCommentsRepository.delete(answerComment)
 
-    return {}
+    return right({})
   }
 }
