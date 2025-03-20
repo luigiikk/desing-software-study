@@ -1,4 +1,7 @@
+import { left, right, type Either } from '@/core/either'
 import type { AnswerRepository } from '../repositories/answer-repository'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
+import type { NotAllowedError } from './errors/not-allowed-error'
 
 interface EditAnswerUseCaseRequest {
   authorId: string
@@ -7,8 +10,12 @@ interface EditAnswerUseCaseRequest {
   content: string
 }
 
-// biome-ignore lint/suspicious/noEmptyInterface: <explanation>
-interface EditAnswerUseCaseResponse {}
+
+type EditAnswerUseCaseResponse  = Either<
+ResourceNotFoundError | NotAllowedError,
+// biome-ignore lint/complexity/noBannedTypes: <explanation>
+{}
+>
 
 export class EditAnswerUseCase {
   constructor(private answerRepository: AnswerRepository) {}
@@ -20,16 +27,16 @@ export class EditAnswerUseCase {
   }: EditAnswerUseCaseRequest): Promise<EditAnswerUseCaseResponse> {
     const answer = await this.answerRepository.findById(answerId)
     if (!answer) {
-      throw new Error('Answer not found')
+      return left(new ResourceNotFoundError())
     }
 
     if (authorId !== answer.authorId.toString()) {
-      throw new Error('You are not allower to edit this answer')
+      return left(new ResourceNotFoundError())
     }
     answer.content = content
 
     await this.answerRepository.save(answer)
 
-    return {}
+    return right({})
   }
 }

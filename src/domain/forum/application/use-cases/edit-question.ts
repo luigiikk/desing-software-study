@@ -1,4 +1,7 @@
+import { left, right, type Either } from '@/core/either'
 import type { QuestionRepository } from '../repositories/questions-repository'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
+import type { NotAllowedError } from './errors/not-allowed-error'
 
 interface EditQuestionUseCaseRequest {
   authorId: string
@@ -7,8 +10,12 @@ interface EditQuestionUseCaseRequest {
   content: string
 }
 
-// biome-ignore lint/suspicious/noEmptyInterface: <explanation>
-interface EditQuestionUseCaseResponse {}
+
+type EditQuestionUseCaseResponse = Either<
+ResourceNotFoundError | NotAllowedError,
+// biome-ignore lint/complexity/noBannedTypes: <explanation>
+{}
+>
 
 export class EditQuestionUseCase {
   constructor(private questionRepository: QuestionRepository) {}
@@ -20,11 +27,11 @@ export class EditQuestionUseCase {
   }: EditQuestionUseCaseRequest): Promise<EditQuestionUseCaseResponse> {
     const question = await this.questionRepository.findById(questionId)
     if (!question) {
-      throw new Error('Question not found')
+      return left(new ResourceNotFoundError())
     }
 
     if (authorId !== question.authorId.toString()) {
-      throw new Error('You are not allower to edit this question')
+      return left(new ResourceNotFoundError())
     }
 
     question.title = title
@@ -32,6 +39,6 @@ export class EditQuestionUseCase {
 
     await this.questionRepository.save(question)
 
-    return {}
+    return right({})
   }
 }
