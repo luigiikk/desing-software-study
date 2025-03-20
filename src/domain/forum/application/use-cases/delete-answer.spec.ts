@@ -12,9 +12,12 @@ describe('Delete Answer Use Case', () => {
   })
 
   it('should be able to delete answer', async () => {
-    const newAnswer = makeAnswer({
-      authorId: new UniqueEntityID('author-1'),
-    }, new UniqueEntityID('answer-1'))
+    const newAnswer = makeAnswer(
+      {
+        authorId: new UniqueEntityID('author-1'),
+      },
+      new UniqueEntityID('answer-1')
+    )
 
     await inMemoryAnswerRepository.create(newAnswer)
 
@@ -27,17 +30,19 @@ describe('Delete Answer Use Case', () => {
   })
 
   it('should not be able to delete answer fro manother user', async () => {
-    const newAnswer = makeAnswer({
-      authorId: new UniqueEntityID('author-1'),
-    }, new UniqueEntityID('answer-1'))
+    const newAnswer = makeAnswer(
+      {
+        authorId: new UniqueEntityID('author-1'),
+      },
+      new UniqueEntityID('answer-1')
+    )
 
     await inMemoryAnswerRepository.create(newAnswer)
 
-    expect(() => {
-      return sut.execute({
-        authorId: 'author-2',
-        answerId: 'answer-1',
-      })
-    }).rejects.toBeInstanceOf(Error)
+    const result = await sut.execute({
+      authorId: 'author-2',
+      answerId: 'answer-1',
+    })
+    expect(result.isLeft()).toBe(true)
   })
 })

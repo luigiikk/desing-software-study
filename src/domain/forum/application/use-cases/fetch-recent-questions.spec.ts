@@ -22,11 +22,11 @@ describe('Fetch Recent Question', () => {
       makeQuestion({ createdAt: new Date('2024, 0, 18') })
     )
 
-    const { questions } = await sut.execute({
+    const result = await sut.execute({
       page: 1,
     })
 
-    expect(questions).toEqual([
+    expect(result.value?.questions).toEqual([
       expect.objectContaining({ createdAt: new Date('2024, 0, 20') }),
       expect.objectContaining({ createdAt: new Date('2024, 0, 18') }),
       expect.objectContaining({ createdAt: new Date('2024, 0, 12') }),

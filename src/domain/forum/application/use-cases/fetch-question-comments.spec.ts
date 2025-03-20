@@ -7,7 +7,8 @@ let inMemoryQuestionCommentsRepository: InMemoryQuestionCommentsRepository
 let sut: FetchQuestionCommentsUseCase
 describe('Fetch Recent Question', () => {
   beforeEach(() => {
-    inMemoryQuestionCommentsRepository = new InMemoryQuestionCommentsRepository()
+    inMemoryQuestionCommentsRepository =
+      new InMemoryQuestionCommentsRepository()
     sut = new FetchQuestionCommentsUseCase(inMemoryQuestionCommentsRepository)
   })
 
@@ -28,11 +29,11 @@ describe('Fetch Recent Question', () => {
       })
     )
 
-    const { questionComments } = await sut.execute({
+    const result = await sut.execute({
       questionId: 'question-1',
       page: 1,
     })
 
-    expect(questionComments).toHaveLength(3)
+    expect(result.value?.questionComments).toHaveLength(3)
   })
 })

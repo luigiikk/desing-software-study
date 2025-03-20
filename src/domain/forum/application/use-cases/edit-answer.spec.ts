@@ -35,13 +35,13 @@ describe('Edit Answer Use Case', () => {
 
     await inMemoryAnswerRepository.create(newAnswer)
 
-    expect(() => {
-      return sut.execute({
-        authorId: 'author-2',
-        title: 'new titler',
-        content: 'new content',
-        answerId: newAnswer.id.toValue(),
-      })
-    }).rejects.toThrow('You are not allower to edit this answer')
+    const result = await sut.execute({
+      authorId: 'author-2',
+      title: 'new title',
+      content: 'new content',
+      answerId: newAnswer.id.toString(),
+    })
+
+    expect(result.isLeft()).toBe(true)
   })
 })

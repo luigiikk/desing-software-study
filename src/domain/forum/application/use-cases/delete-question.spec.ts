@@ -33,11 +33,11 @@ describe('Delete Question Use Case', () => {
 
     await inMemoryQuestionRepository.create(newQuestion)
 
-    expect(() => {
-      return sut.execute({
-        authorId: 'author-2',
-        questionId: 'question-1',
-      })
-    }).rejects.toBeInstanceOf(Error)
+    const result = await sut.execute({
+      authorId: 'author-2',
+      questionId: 'question-1',
+    })
+
+    expect(result.isLeft()).toBe(true)
   })
 })
