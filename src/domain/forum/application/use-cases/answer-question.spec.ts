@@ -1,5 +1,6 @@
 import { InMemoryAnswerRepository } from 'test/repositories/in-memory-answer-repository'
 import { AnswerQuestionUseCase } from './answer-question'
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 
 let inMemoryAnswerRepository: InMemoryAnswerRepository
 let sut: AnswerQuestionUseCase
@@ -14,8 +15,14 @@ describe('Create Answer use case', () => {
       instructorId: '1',
       content: 'Novo conteudo',
       questionId: '1',
+      attachmentsIds: ['1', '2']
     })
 
     expect(result.isRight()).toBe(true)
+    expect(inMemoryAnswerRepository.items[0].attachments.currentItems).toHaveLength(2)
+    expect(inMemoryAnswerRepository.items[0].attachments.currentItems).toEqual([
+      expect.objectContaining({ attachmentId: new UniqueEntityID('1') }),
+      expect.objectContaining({ attachmentId: new UniqueEntityID('2') }),
+    ])
   })
 })
