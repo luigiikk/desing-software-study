@@ -1,51 +1,57 @@
-import type { Aggregateroot } from '../entities/aggregate-root'
-import type { UniqueEntityID } from '../entities/unique-entity-id'
-import type { DomainEvent } from './domain-event'
+import type { Aggregateroot } from '../entities/aggregate-root';
+import type { UniqueEntityID } from '../entities/unique-entity-id';
+import type { DomainEvent } from './domain-event';
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-type DomainEventCallback = (event: any) => void
+type DomainEventCallback = (event: any) => void;
 
 export class DomainEvents {
   private constructor() {}
   
-  private static handlersMap: Record<string, DomainEventCallback[]> = {}
-  private static markedAggregates: Aggregateroot<any>[] = []
+  private static handlersMap: Record<string, DomainEventCallback[]> = {};
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  private static markedAggregates: Aggregateroot<any>[] = [];
 
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   public static markAggregateForDispatch(aggregate: Aggregateroot<any>) {
-    const aggregateFound = !!this.findMarkedAggregateByID(aggregate.id)
+    const aggregateFound = !!DomainEvents.findMarkedAggregateByID(aggregate.id);
 
     if (!aggregateFound) {
-      this.markedAggregates.push(aggregate)
+      DomainEvents.markedAggregates.push(aggregate);
     }
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private static dispatchAggregateEvents(aggregate: Aggregateroot<any>) {
-    aggregate.domainEvents.forEach((event: DomainEvent) => this.dispatch(event))
+    // biome-ignore lint/complexity/noForEach: <explanation>
+    aggregate.domainEvents.forEach((event: DomainEvent) => DomainEvents.dispatch(event));
   }
 
   private static removeAggregateFromMarkedDispatchList(
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     aggregate: Aggregateroot<any>
   ) {
-    const index = this.markAggregateForDispatch.findIndex(a =>
-      a.equal(aggregate)
-    )
+    const index = DomainEvents.markedAggregates.findIndex(a => a.equals(aggregate));
 
-    this.markedAggregates.splice(index, 1)
+    if (index !== -1) {
+      DomainEvents.markedAggregates.splice(index, 1);
+    }
   }
 
   private static findMarkedAggregateByID(
     id: UniqueEntityID
-  ): Aggregateroot<any | undefined> {
-    return this.markedAggregates.find(aggregate => aggregate.id.equals(id))
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  ): Aggregateroot<any> | undefined {
+    return DomainEvents.markedAggregates.find(aggregate => aggregate.id.equals(id));
   }
 
   public static dispatchEventsForAggregate(id: UniqueEntityID) {
-    const aggregate = this.findMarkedAggregateByID(id)
+    const aggregate = DomainEvents.findMarkedAggregateByID(id);
 
     if (aggregate) {
-      this.dispatchAggregateEvents(aggregate)
-      aggregate.clearEvents()
-      this.removeAggregateFromMarkedDispatchList(aggregate)
+      DomainEvents.dispatchAggregateEvents(aggregate);
+      aggregate.clearEvents();
+      DomainEvents.removeAggregateFromMarkedDispatchList(aggregate);
     }
   }
 
@@ -53,35 +59,29 @@ export class DomainEvents {
     callback: DomainEventCallback,
     eventClassName: string
   ) {
-    const wasEventRegisteredBefore = eventClassName in this.handlersMap
-
-    if (!wasEventRegisteredBefore) {
-      this.handlersMap[eventClassName] = []
+    if (!(eventClassName in DomainEvents.handlersMap)) {
+      DomainEvents.handlersMap[eventClassName] = [];
     }
 
-    this.handlersMap[eventClassName].push(callback)
+    DomainEvents.handlersMap[eventClassName].push(callback);
   }
 
   public static clearHandlers() {
-    this.handlersMap = {}
+    DomainEvents.handlersMap = {};
   }
 
   public static clearMarkedAggregates() {
-    this.markedAggregates = []
+    DomainEvents.markedAggregates = [];
   }
 
-  public static dispatch(event: DomainEvents) {
-    const eventClassName: string = event.constructor.name
+  public static dispatch(event: DomainEvent) {
+    const eventClassName: string = event.constructor.name;
 
-    // biome-ignore lint/complexity/noThisInStatic: <explanation>
-    const isEventRegistered = eventClassName in this.handlersMap
-
-    if (!isEventRegistered) {
-      // biome-ignore lint/complexity/noThisInStatic: <explanation>
-      const handlers = this.handlersMap[eventClassName]
-
+    if (eventClassName in DomainEvents.handlersMap) {
+      const handlers = DomainEvents.handlersMap[eventClassName];
+      
       for (const handler of handlers) {
-        handler(event)
+        handler(event);
       }
     }
   }
